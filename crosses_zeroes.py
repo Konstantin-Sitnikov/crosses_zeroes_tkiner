@@ -7,17 +7,20 @@ class Crosses_zeroes(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        self.controller.set_name.trace_add("write", self.set_name_players)
+        self.players = {"X": "",
+                   "0": ""}
         self.move = 1
         self.symbol = "X"
-        self.text = tk.StringVar(value=f"Сейчас делает ход: {self.symbol}")
 
 
-        self.label = tk.Label(self, textvariable=self.text)
+        self.label = tk.Label(self, text="")
         self.label.grid(row=0, column=1, columnspan=3, pady=20)
 
         self.playing_field = {(0, 0): "-", (0, 1): "-", (0, 2): "-",
                               (1, 0): "-", (1, 1): "-", (1, 2): "-",
                               (2, 0): "-", (2, 1): "-", (2, 2): "-"}
+
 
         self.button_creation()
 
@@ -50,10 +53,7 @@ class Crosses_zeroes(tk.Frame):
         else:
             self.symbol = "X"
 
-        self.text.set(f"Сейчас делает ход: {self.symbol}")
-
-
-        print(self.symbol)
+        self.set_text()
 
 
     def set_symbol_playfield(self, row, column):
@@ -65,10 +65,16 @@ class Crosses_zeroes(tk.Frame):
             print("Победа")
         print(self.playing_field)
 
-    def test(self):
-        players = [self.controller.shared_data["X"].get(), self.controller.shared_data["0"].get()]
-        print(players)
+    def set_name_players(self, *args):
+        self.players = {"X": self.controller.shared_data["X"].get(),
+                   "0": self.controller.shared_data["0"].get()}
 
+        self.set_text()
+
+
+
+    def set_text(self):
+        self.label['text'] =  f"Сейчас делает ход: {self.symbol} - {self.players[f"{self.symbol}"]}"
 
     def playfield_reset(self) -> None:
 
@@ -77,6 +83,7 @@ class Crosses_zeroes(tk.Frame):
                 self.playing_field[(i, j)] = "-"
 
         self.move = 1
+        self.set_symbol()
         self.button_creation()
 
 

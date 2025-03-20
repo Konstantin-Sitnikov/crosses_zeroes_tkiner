@@ -18,6 +18,10 @@ class Windows(tk.Tk):
         self.shared_data = {"X": tk.StringVar(container),
                             "0": tk.StringVar(container)}
 
+        self.set_name = tk.BooleanVar(container)
+
+
+
         self.frames = {}
         for F in (StartPage, Crosses_zeroes, CompletionScreen):
             frame = F(container, self)
@@ -59,6 +63,8 @@ class StartPage(tk.Frame):
     def set_player(self):
         self.controller.shared_data["X"].set(self.entry_first_player.get())
         self.controller.shared_data["0"].set(self.entry_third_player.get())
+        self.controller.set_name.set(True)
+
         self.controller.show_frame(Crosses_zeroes)
 
 
