@@ -1,39 +1,36 @@
 import random
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, StringVar
 from functools import partial
 
 class Crosses_zeroes(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        self.symbol = "X"
-        self.label = tk.Label(self, text=f"Сейчас ходит: {self.symbol}")
-        self.label.grid(row=0, column=1, columnspan=3, pady=20)
         self.controller = controller
-
-
         self.move = 1
-        first_player = None
-        third_name = None
-        self.playinig_field = {(0, 0): "-", (0, 1): "-", (0, 2): "-",
-                          (1, 0): "-", (1, 1): "-", (1, 2): "-",
-                          (2, 0): "-", (2, 1): "-", (2, 2): "-"}
+        self.symbol = "X"
+        self.text = tk.StringVar(value=f"Сейчас делает ход: {self.symbol}")
 
+
+        self.label = tk.Label(self, textvariable=self.text)
+        self.label.grid(row=0, column=1, columnspan=3, pady=20)
+
+        self.playing_field = {(0, 0): "-", (0, 1): "-", (0, 2): "-",
+                              (1, 0): "-", (1, 1): "-", (1, 2): "-",
+                              (2, 0): "-", (2, 1): "-", (2, 2): "-"}
 
         self.button_creation()
-
-
 
     def button_creation(self):
         for row in range(1, 4):
             for column in range(1, 4):
-                if self.playinig_field[(row - 1, column - 1)] != "-":
+                if self.playing_field[(row - 1, column - 1)] != "-":
                     state = "disabled"
                 else:
                     state = "normal"
 
-                btn = ttk.Button(self, text=f"{self.playinig_field[(row - 1, column - 1)]}", state=state,
-                                 command=lambda i = row - 1, j = column - 1: self.set_symbol(row=i,column=j)
+                btn = ttk.Button(self, text=f"{self.playing_field[(row - 1, column - 1)]}", state=state,
+                                 command=lambda i = row - 1, j = column - 1: self.set_symbol_playfield(row=i, column=j)
                                  )
 
                 btn.grid(row=row, column=column, ipadx=20, ipady=20, padx=5, pady=5)
@@ -42,34 +39,42 @@ class Crosses_zeroes(tk.Frame):
                               command=lambda: self.playfield_reset())
         reset_button.grid(row=5, column=0, columnspan=4, ipadx=100, pady=20)
 
+        button = ttk.Button(self, text=f"Игроки",
+                              command=lambda: self.test())
+        button.grid(row=6, column=0, columnspan=4, ipadx=100, pady=20)
 
-    def set_symbol(self, row, column):
-        print(self.symbol)
+
+    def set_symbol(self):
         if self.move % 2 == 0:
-            self.symbol ="0"
+            self.symbol = "0"
         else:
             self.symbol = "X"
-        self.playinig_field[(row, column)] = self.symbol
-        self.move += 1
-        self.button_creation()
+
+        self.text.set(f"Сейчас делает ход: {self.symbol}")
+
+
         print(self.symbol)
 
 
+    def set_symbol_playfield(self, row, column):
+        self.playing_field[(row, column)] = self.symbol
+        self.move += 1
+        self.button_creation()
+        self.set_symbol()
         if self.check_win():
             print("Победа")
-        print(self.playinig_field)
+        print(self.playing_field)
 
-    def set_name(self, first_player, third_name):
-
-        self.first_player = first_player
-        self.third_name = third_name
+    def test(self):
+        players = [self.controller.shared_data["X"].get(), self.controller.shared_data["0"].get()]
+        print(players)
 
 
     def playfield_reset(self) -> None:
 
         for i in range(3):
             for j in range(3):
-                self.playinig_field[(i, j)] = "-"
+                self.playing_field[(i, j)] = "-"
 
         self.move = 1
         self.button_creation()
@@ -95,12 +100,12 @@ class Crosses_zeroes(tk.Frame):
             line = []  # список для проверки комбинации по строке
             column = []  # список для проверки комбинации по столбцу
             for j in range(3):
-                line.append(self.playinig_field[(i, j)])  # заполняем список строк
-                column.append(self.playinig_field[(j, i)])  # заполняем список столбцов
+                line.append(self.playing_field[(i, j)])  # заполняем список строк
+                column.append(self.playing_field[(j, i)])  # заполняем список столбцов
                 if i == j:
-                    diagonal_1.append(self.playinig_field[(j, i)])  # заполняем списки диагоналей
+                    diagonal_1.append(self.playing_field[(j, i)])  # заполняем списки диагоналей
                 if i + j == 2:
-                    diagonal_2.append(self.playinig_field[(j, i)])
+                    diagonal_2.append(self.playing_field[(j, i)])
 
             if (line == control_list or column == control_list or
                     diagonal_1 == control_list or diagonal_2 == control_list):  # сравниваем списоки с тестовым
